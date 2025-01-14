@@ -16,24 +16,45 @@
     <p><strong>表示名:</strong> <span id="displayName"></span></p>
 
     <script>
-        // LIFFの初期化
+        const accessToken = "McLJ217ucwU7496mDrSv8xJiV6CUknDVt7rZUJfeFT4fQFldyoX1bLgLLvst2GriWMQcctNY3lrkM0XVp5gKvjInD5uJbCDQiEjIlKCOMuvLidZrpXnwN9TtR+VcMjXPE6r0DGKb3Z8Mx4pchOaspAdB04t89/1O/w1cDnyilFU=";
+        const adminUserId = "@152ttooy"; 
+
+        // LIFF初期化とQRコード生成
         liff.init({ liffId: "2006771086-RP5xGl9P" }) 
             .then(() => {
-                console.log("LIFF初期化成功");
-
-                // URLからABILI IDを取得
                 const urlParams = new URLSearchParams(window.location.search);
                 const abiliId = urlParams.get('abiliId');
                 document.getElementById("abiliId").innerText = abiliId;
 
-                // LINE公式アカウントの友達追加URL生成（ABILI ID付き）
+                // LINE公式アカウントの友達追加リンクにABILI IDを埋め込む
                 const friendAddUrl = `https://line.me/R/ti/p/%40152ttooy?abiliId=${abiliId}`;
 
-                // QRコードを生成（友達追加リンクをエンコード）
+                // QRコードを生成
                 new QRCode(document.getElementById("qrcode"), {
                     text: friendAddUrl,
                     width: 128,
                     height: 128
+                });
+
+                // LINEプロフィール取得と管理者通知
+                liff.getProfile().then(profile => {
+                    document.getElementById("lineUserId").innerText = profile.userId;
+                    document.getElementById("displayName").innerText = profile.displayName;
+
+                    fetch('https://api.line.me/v2/bot/message/push', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${accessToken}`
+                        },
+                        body: JSON.stringify({
+                            to: adminUserId,
+                            messages: [{
+                                type: "text",
+                                text: `新しい友達追加\nABILI ID: ${abiliId}\nLINE ID: ${profile.userId}\n表示名: ${profile.displayName}`
+                            }]
+                        })
+                    });
                 });
             })
             .catch(err => {
@@ -42,3 +63,4 @@
     </script>
 </body>
 </html>
+
