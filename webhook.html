@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webhook Receiver</title>
+</head>
+<body>
+    <h1>LINE Webhook Receiver</h1>
+    <p>このページはLINEのWebhookを受信するためのテストページです。</p>
+    <script>
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const abiliId = urlParams.get('abiliId');
+            console.log("Webhook Triggered! ABILI ID:", abiliId);
+        }
+    </script>
+</body>
+</html>
