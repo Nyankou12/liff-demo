@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>クリップちゃんサーベイ - LIFFデモ</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+    <h1>クリップちゃんサーベイ - LINE ID取得デモ</h1>
+    <button onclick="getProfile()">LINE IDを取得</button>
+    <p><strong>LINE ID:</strong> <span id="userId"></span></p>
+    <p><strong>表示名:</strong> <span id="displayName"></span></p>
+
+    <script>
+        liff.init({ liffId: "YOUR_LIFF_ID" }) // あなたのLIFF IDをここに入力
+            .then(() => {
+                console.log("LIFF初期化成功");
+            })
+            .catch(err => {
+                console.error("LIFF初期化エラー: ", err);
+            });
+
+        function getProfile() {
+            liff.getProfile().then(profile => {
+                document.getElementById("userId").innerText = profile.userId;
+                document.getElementById("displayName").innerText = profile.displayName;
+                alert("LINE ID取得成功！");
+            }).catch(err => {
+                console.error("プロフィール取得エラー: ", err);
+            });
+        }
+    </script>
+</body>
+</html>
