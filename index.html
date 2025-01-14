@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>クリップちゃんサーベイ - ABILI IDとLINE ID紐付けデモ</title>
+    <title>クリップちゃんサーベイ - ABILI IDとLINE IDの紐付けデモ</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <h1>ABILI IDとLINE IDの紐付けデモ</h1>
 
-    <!-- QRコードを表示するエリア -->
+    <!-- QRコード表示 -->
     <div id="qrcode"></div>
 
     <p><strong>ABILI ID:</strong> <span id="abiliId"></span></p>
@@ -16,20 +16,20 @@
     <p><strong>表示名:</strong> <span id="displayName"></span></p>
 
     <script>
-        const accessToken = "McLJ217ucwU7496mDrSv8xJiV6CUknDVt7rZUJfeFT4fQFldyoX1bLgLLvst2GriWMQcctNY3lrkM0XVp5gKvjInD5uJbCDQiEjIlKCOMuvLidZrpXnwN9TtR+VcMjXPE6r0DGKb3Z8Mx4pchOaspAdB04t89/1O/w1cDnyilFU=";
-        const adminUserId = "@152ttooy"; 
+        // LIFF IDとアクセストークン
+        const liffId = "2006771086-RP5xGl9P"; 
+        const accessToken = "Bearer McLJ217ucwU7496mDrSv8xJiV6CUknDVt7rZUJfeFT4fQFldyoX1bLgLLvst2GriWMQcctNY3lrkM0XVp5gKvjInD5uJbCDQiEjIlKCOMuvLidZrpXnwN9TtR+VcMjXPE6r0DGKb3Z8Mx4pchOaspAdB04t89/1O/w1cDnyilFU=";
+        const adminUserId = "@152ttooy";
 
         // LIFF初期化とQRコード生成
-        liff.init({ liffId: "2006771086-RP5xGl9P" }) 
+        liff.init({ liffId })
             .then(() => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const abiliId = urlParams.get('abiliId');
                 document.getElementById("abiliId").innerText = abiliId;
 
-                // LINE公式アカウントの友達追加リンクにABILI IDを埋め込む
-                const friendAddUrl = `https://line.me/R/ti/p/%40152ttooy?abiliId=${abiliId}`;
-
-                // QRコードを生成
+                // 友達追加用のQRコード生成
+                const friendAddUrl = `https://line.me/R/ti/p/${adminUserId}?abiliId=${abiliId}`;
                 new QRCode(document.getElementById("qrcode"), {
                     text: friendAddUrl,
                     width: 128,
@@ -41,19 +41,26 @@
                     document.getElementById("lineUserId").innerText = profile.userId;
                     document.getElementById("displayName").innerText = profile.displayName;
 
+                    // LINE公式アカウントから管理者へ通知送信
                     fetch('https://api.line.me/v2/bot/message/push', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${accessToken}`
+                            'Authorization': accessToken
                         },
                         body: JSON.stringify({
                             to: adminUserId,
                             messages: [{
                                 type: "text",
-                                text: `新しい友達追加\nABILI ID: ${abiliId}\nLINE ID: ${profile.userId}\n表示名: ${profile.displayName}`
+                                text: `✅ 新しい友達追加！\nABILI ID: ${abiliId}\nLINE ID: ${profile.userId}\n表示名: ${profile.displayName}`
                             }]
                         })
+                    }).then(response => {
+                        if (response.ok) {
+                            alert("✅ 管理者にデータが送信されました！");
+                        } else {
+                            alert("❌ データ送信エラーが発生しました。");
+                        }
                     });
                 });
             })
