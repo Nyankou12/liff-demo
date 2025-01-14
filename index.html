@@ -16,7 +16,7 @@
     <p><strong>表示名:</strong> <span id="displayName"></span></p>
 
     <script>
-        // LIFF初期化とQRコード生成
+        // LIFFの初期化
         liff.init({ liffId: "2006771086-RP5xGl9P" }) 
             .then(() => {
                 console.log("LIFF初期化成功");
@@ -26,16 +26,12 @@
                 const abiliId = urlParams.get('abiliId');
                 document.getElementById("abiliId").innerText = abiliId;
 
-                // LINEプロフィール取得
-                liff.getProfile().then(profile => {
-                    document.getElementById("lineUserId").innerText = profile.userId;
-                    document.getElementById("displayName").innerText = profile.displayName;
-                    console.log("LINE ID取得成功: ", profile.userId);
-                });
+                // LINE公式アカウントの友達追加URL生成（ABILI ID付き）
+                const friendAddUrl = `https://line.me/R/ti/p/%40152ttooy?abiliId=${abiliId}`;
 
-                // QRコード生成（ABILI IDを埋め込んだリンク）
+                // QRコードを生成（友達追加リンクをエンコード）
                 new QRCode(document.getElementById("qrcode"), {
-                    text: window.location.href,
+                    text: friendAddUrl,
                     width: 128,
                     height: 128
                 });
