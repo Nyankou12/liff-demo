@@ -11,62 +11,73 @@
     <!-- QRコード表示 -->
     <div id="qrcode"></div>
 
-    <p><strong>ABILI ID:</strong> <span id="abiliId"></span></p>
+    <p><strong>ABILI ID:</strong> <input type="text" id="abiliIdInput" placeholder="ABILI IDを入力"></p>
+    <button onclick="generateQRCode()">QRコード生成</button>
+
     <p><strong>LINE ID:</strong> <span id="lineUserId"></span></p>
     <p><strong>表示名:</strong> <span id="displayName"></span></p>
+    <button onclick="sendDataToAdmin()">データ送信</button>
 
     <script>
-        // LIFF IDとアクセストークン
         const liffId = "2006771086-RP5xGl9P"; 
         const accessToken = "Bearer McLJ217ucwU7496mDrSv8xJiV6CUknDVt7rZUJfeFT4fQFldyoX1bLgLLvst2GriWMQcctNY3lrkM0XVp5gKvjInD5uJbCDQiEjIlKCOMuvLidZrpXnwN9TtR+VcMjXPE6r0DGKb3Z8Mx4pchOaspAdB04t89/1O/w1cDnyilFU=";
         const adminUserId = "@152ttooy";
 
-        // LIFF初期化とQRコード生成
+        // LIFF初期化
         liff.init({ liffId })
-            .then(() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const abiliId = urlParams.get('abiliId');
-                document.getElementById("abiliId").innerText = abiliId;
+            .then(() => console.log("✅ LIFF初期化成功"))
+            .catch(err => console.error("❌ LIFF初期化エラー: ", err));
 
-                // 友達追加用のQRコード生成
-                const friendAddUrl = `https://line.me/R/ti/p/${adminUserId}?abiliId=${abiliId}`;
-                new QRCode(document.getElementById("qrcode"), {
-                    text: friendAddUrl,
-                    width: 128,
-                    height: 128
-                });
-
-                // LINEプロフィール取得と管理者通知
-                liff.getProfile().then(profile => {
-                    document.getElementById("lineUserId").innerText = profile.userId;
-                    document.getElementById("displayName").innerText = profile.displayName;
-
-                    // LINE公式アカウントから管理者へ通知送信
-                    fetch('https://api.line.me/v2/bot/message/push', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': accessToken
-                        },
-                        body: JSON.stringify({
-                            to: adminUserId,
-                            messages: [{
-                                type: "text",
-                                text: `✅ 新しい友達追加！\nABILI ID: ${abiliId}\nLINE ID: ${profile.userId}\n表示名: ${profile.displayName}`
-                            }]
-                        })
-                    }).then(response => {
-                        if (response.ok) {
-                            alert("✅ 管理者にデータが送信されました！");
-                        } else {
-                            alert("❌ データ送信エラーが発生しました。");
-                        }
-                    });
-                });
-            })
-            .catch(err => {
-                console.error("LIFF初期化エラー: ", err);
+        // QRコード生成
+        function generateQRCode() {
+            const abiliId = document.getElementById("abiliIdInput").value;
+            if (!abiliId) {
+                alert("ABILI IDを入力してください");
+                return;
+            }
+            const friendAddUrl = `https://line.me/R/ti/p/${adminUserId}?abiliId=${abiliId}`;
+            document.getElementById("qrcode").innerHTML = "";
+            new QRCode(document.getElementById("qrcode"), {
+                text: friendAddUrl,
+                width: 128,
+                height: 128
             });
+        }
+
+        // LINE IDとABILI IDの送信
+        async function sendDataToAdmin() {
+            try {
+                const profile = await liff.getProfile();
+                const abiliId = document.getElementById("abiliIdInput").value;
+                document.getElementById("lineUserId").innerText = profile.userId;
+                document.getElementById("displayName").innerText = profile.displayName;
+
+                const payload = {
+                    to: adminUserId,
+                    messages: [{
+                        type: "text",
+                        text: `✅ ABILI ID: ${abiliId}\n✅ LINE ID: ${profile.userId}\n表示名: ${profile.displayName}`
+                    }]
+                };
+
+                const response = await fetch('https://api.line.me/v2/bot/message/push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': accessToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert("✅ データ送信成功！");
+                } else {
+                    alert("❌ データ送信エラーが発生しました");
+                }
+            } catch (error) {
+                console.error("❌ エラー: ", error);
+            }
+        }
     </script>
 </body>
 </html>
