@@ -31,3 +31,51 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>クリップちゃんサーベイ - ABILI IDとLINE ID紐付けデモ</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <h1>ABILI IDとLINE IDの紐付けデモ</h1>
+
+    <!-- QRコードを表示するエリア -->
+    <div id="qrcode"></div>
+
+    <p><strong>ABILI ID:</strong> <span id="abiliId"></span></p>
+    <p><strong>LINE ID:</strong> <span id="lineUserId"></span></p>
+    <p><strong>表示名:</strong> <span id="displayName"></span></p>
+
+    <script>
+        // 1. LIFFの初期化
+        liff.init({ liffId: "2006771086-RP5xGl9P" }) 
+            .then(() => {
+                console.log("LIFF初期化成功");
+
+                // 2. URLパラメータからABILI IDを取得
+                const urlParams = new URLSearchParams(window.location.search);
+                const abiliId = urlParams.get('abiliId');
+                document.getElementById("abiliId").innerText = abiliId;
+
+                // 3. LINEプロフィール取得
+                liff.getProfile().then(profile => {
+                    document.getElementById("lineUserId").innerText = profile.userId;
+                    document.getElementById("displayName").innerText = profile.displayName;
+                    console.log("LINE ID取得成功: ", profile.userId);
+                });
+
+                // 4. QRコード生成（このURLにABILI IDを埋め込む）
+                new QRCode(document.getElementById("qrcode"), {
+                    text: window.location.href,
+                    width: 128,
+                    height: 128
+                });
+            })
+            .catch(err => {
+                console.error("LIFF初期化エラー: ", err);
+            });
+    </script>
+</body>
+</html>
