@@ -1,39 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>クリップちゃんサーベイ - LIFFデモ</title>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-</head>
-<body>
-    <h1>クリップちゃんサーベイ - LINE ID取得デモ</h1>
-    <button onclick="getProfile()">LINE IDを取得</button>
-    <p><strong>LINE ID:</strong> <span id="userId"></span></p>
-    <p><strong>表示名:</strong> <span id="displayName"></span></p>
-
-    <script>
-        liff.init({ liffId: "YOUR_LIFF_ID" }) // あなたのLIFF IDをここに入力
-            .then(() => {
-                console.log("LIFF初期化成功");
-            })
-            .catch(err => {
-                console.error("LIFF初期化エラー: ", err);
-            });
-
-        function getProfile() {
-            liff.getProfile().then(profile => {
-                document.getElementById("userId").innerText = profile.userId;
-                document.getElementById("displayName").innerText = profile.displayName;
-                alert("LINE ID取得成功！");
-            }).catch(err => {
-                console.error("プロフィール取得エラー: ", err);
-            });
-        }
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
     <title>クリップちゃんサーベイ - ABILI IDとLINE ID紐付けデモ</title>
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -49,24 +16,24 @@
     <p><strong>表示名:</strong> <span id="displayName"></span></p>
 
     <script>
-        // 1. LIFFの初期化
+        // LIFF初期化とQRコード生成
         liff.init({ liffId: "2006771086-RP5xGl9P" }) 
             .then(() => {
                 console.log("LIFF初期化成功");
 
-                // 2. URLパラメータからABILI IDを取得
+                // URLからABILI IDを取得
                 const urlParams = new URLSearchParams(window.location.search);
                 const abiliId = urlParams.get('abiliId');
                 document.getElementById("abiliId").innerText = abiliId;
 
-                // 3. LINEプロフィール取得
+                // LINEプロフィール取得
                 liff.getProfile().then(profile => {
                     document.getElementById("lineUserId").innerText = profile.userId;
                     document.getElementById("displayName").innerText = profile.displayName;
                     console.log("LINE ID取得成功: ", profile.userId);
                 });
 
-                // 4. QRコード生成（このURLにABILI IDを埋め込む）
+                // QRコード生成（ABILI IDを埋め込んだリンク）
                 new QRCode(document.getElementById("qrcode"), {
                     text: window.location.href,
                     width: 128,
